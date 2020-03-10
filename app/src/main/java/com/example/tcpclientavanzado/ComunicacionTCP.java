@@ -1,8 +1,5 @@
 package com.example.tcpclientavanzado;
 
-import android.content.Intent;
-import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedReader;
@@ -23,6 +20,13 @@ public class ComunicacionTCP extends Thread {
 
     private AppCompatActivity app;
 
+    private OnMessageListener observer;
+
+    public void setObserver(OnMessageListener observer) {
+        this.observer = observer;
+    }
+
+    //Usar setters para sacar del null a las interfaces
     public ComunicacionTCP(AppCompatActivity app) {
         this.app = app;
     }
@@ -81,20 +85,8 @@ public class ComunicacionTCP extends Thread {
     // Recibir mensaje
     public void recibirMensaje() throws IOException {
         String line = reader.readLine();
-        System.out.println("<<<"+line);
-        if(line.equals("SI")){
-            Intent i = new Intent(app, MainActivity.class);
-            app.startActivity(i);
-        }
-        if(line.equals("NO")){
-            //CUMPLE CON LAS REGLAS DE ANDROID!
-            app.runOnUiThread(
-                    ()->{
-                        Toast.makeText(app, "El correo esta MAL", Toast.LENGTH_SHORT).show();
-                    }
-            );
-
-        }
+        //System.out.println("<<<" + line);
+        observer.onMessage(line);
 
     }
 
@@ -107,4 +99,10 @@ public class ComunicacionTCP extends Thread {
             e.printStackTrace();
         }
     }
+
+    //Interfaz = implementar un tipo de dato
+    public interface OnMessageListener {
+        void onMessage(String mensaje);
+    }
+
 }
